@@ -4,6 +4,8 @@ import java.lang.annotation.Target;
 import java.lang.annotation.ElementType;
 import java.lang.reflect.Method;
 
+import exercicio34.Teste;
+
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
 public @interface Teste {

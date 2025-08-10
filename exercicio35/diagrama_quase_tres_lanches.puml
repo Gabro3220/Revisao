@@ -1,0 +1,149 @@
+@startuml QuaseTresLanches
+
+!theme plain
+skinparam classAttributeIconSize 0
+skinparam classFontSize 10
+skinparam classFontName Arial
+skinparam backgroundColor white
+skinparam classBackgroundColor #F8F9FA
+skinparam classBorderColor #495057
+skinparam arrowColor #495057
+
+' Enumeração
+enum TipoSalgadinho {
+    FRITO
+    ASSADO
+}
+
+' Classe Abstrata Base
+abstract class Prato {
+    # precoVenda: double
+    # dataValidade: LocalDate
+    # peso: double
+    # nome: String
+    --
+    + Prato(nome: String, precoVenda: double, dataValidade: LocalDate, peso: double)
+    + {abstract} calcularPreco(): double
+    + {abstract} getDescricao(): String
+    + getPrecoVenda(): double
+    + getDataValidade(): LocalDate
+    + getPeso(): double
+    + getNome(): String
+    + setPrecoVenda(precoVenda: double): void
+    + setDataValidade(dataValidade: LocalDate): void
+    + setPeso(peso: double): void
+    + estaVencido(): boolean
+}
+
+' Classes Concretas - Tipos de Pratos
+class Pizza extends Prato {
+    - molho: String
+    - recheio: String
+    - borda: String
+    --
+    + Pizza(nome: String, precoVenda: double, dataValidade: LocalDate, peso: double, molho: String, recheio: String, borda: String)
+    + calcularPreco(): double
+    + getDescricao(): String
+    + getMolho(): String
+    + getRecheio(): String
+    + getBorda(): String
+}
+
+class Lanche extends Prato {
+    - pao: String
+    - recheio: String
+    - molho: String
+    --
+    + Lanche(nome: String, precoVenda: double, dataValidade: LocalDate, peso: double, pao: String, recheio: String, molho: String)
+    + calcularPreco(): double
+    + getDescricao(): String
+    + getPao(): String
+    + getRecheio(): String
+    + getMolho(): String
+}
+
+class Salgadinho extends Prato {
+    - tipo: TipoSalgadinho
+    - massa: String
+    - recheio: String
+    --
+    + Salgadinho(nome: String, precoVenda: double, dataValidade: LocalDate, peso: double, tipo: TipoSalgadinho, massa: String, recheio: String)
+    + calcularPreco(): double
+    + getDescricao(): String
+    + getTipo(): TipoSalgadinho
+    + getMassa(): String
+    + getRecheio(): String
+}
+
+' Classe Pedido
+class Pedido {
+    - nomeCliente: String
+    - taxaServico: double
+    - itensConsumidos: ArrayList<Prato>
+    - dataPedido: LocalDate
+    - numeroPedido: int
+    - {static} contadorPedidos: int
+    --
+    + Pedido(nomeCliente: String, taxaServico: double)
+    + adicionarItem(prato: Prato): void
+    + removerItem(prato: Prato): void
+    + calcularTotal(): double
+    + calcularSubtotal(): double
+    + mostrarFatura(): void
+    + calcularTroco(valorRecebido: double): double
+    + getNomeCliente(): String
+    + getTaxaServico(): double
+    + getItensConsumidos(): ArrayList<Prato>
+    + getDataPedido(): LocalDate
+    + getNumeroPedido(): int
+}
+
+' Sistema Principal
+class SistemaLanchonete {
+    - pedidos: ArrayList<Pedido>
+    - cardapio: ArrayList<Prato>
+    --
+    + SistemaLanchonete()
+    - inicializarCardapio(): void
+    + mostrarCardapio(): void
+    + selecionarPrato(indice: int): Prato
+    + adicionarPedido(pedido: Pedido): void
+    + listarPedidos(): void
+}
+
+' Classe Principal
+class exercicio35 {
+    + {static} main(args: String[]): void
+    + {static} fazerPedido(sistema: SistemaLanchonete, scanner: Scanner): void
+    + {static} testarFuncionalidades(sistema: SistemaLanchonete): void
+}
+
+' Relacionamentos - Herança
+Prato <|-- Pizza
+Prato <|-- Lanche
+Prato <|-- Salgadinho
+
+' Relacionamentos - Associação
+Pedido ||--o{ Prato : contém
+SistemaLanchonete ||--o{ Pedido : gerencia
+SistemaLanchonete ||--o{ Prato : possui
+
+' Relacionamentos - Dependência
+Salgadinho ..> TipoSalgadinho : usa
+exercicio35 ..> SistemaLanchonete : usa
+exercicio35 ..> Pedido : cria
+exercicio35 ..> Pizza : cria
+exercicio35 ..> Lanche : cria
+exercicio35 ..> Salgadinho : cria
+
+' Notas explicativas
+note top of Prato : "Classe abstrata base para\ntodos os tipos de pratos"
+note top of Pedido : "Representa um pedido do cliente\ncom múltiplos itens"
+note top of SistemaLanchonete : "Sistema principal que gerencia\npedidos e cardápio"
+note top of exercicio35 : "Classe principal com método main\ne interface do usuário"
+
+note right of Pizza : "Pizza com molho, recheio\ne borda (recheada ou não)"
+note right of Lanche : "Lanche com pão, recheio\ne molho obrigatórios"
+note right of Salgadinho : "Salgadinho frito ou assado\ncom massa e recheio"
+
+@enduml

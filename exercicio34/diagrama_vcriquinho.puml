@@ -1,0 +1,193 @@
+@startuml SistemaVcRiquinho
+
+!theme plain
+skinparam classAttributeIconSize 0
+skinparam classFontSize 10
+skinparam classFontName Arial
+skinparam backgroundColor white
+skinparam classBackgroundColor #F8F9FA
+skinparam classBorderColor #495057
+skinparam arrowColor #495057
+
+' Enums
+enum TipoCliente {
+    PESSOA_FISICA
+    PESSOA_JURIDICA
+}
+
+enum TipoConta {
+    CORRENTE
+    CDI
+    INVESTIMENTO_AUTOMATICO
+}
+
+enum TipoProduto {
+    RENDA_FIXA
+    RENDA_VARIAVEL
+}
+
+' Classes Abstratas
+abstract class Cliente {
+    # nome: String
+    # email: String
+    # contas: List<Conta>
+    # tipo: TipoCliente
+    --
+    + Cliente(nome: String, email: String, tipo: TipoCliente)
+    + {abstract} getDocumento(): String
+    + adicionarConta(conta: Conta): void
+    + removerConta(conta: Conta): void
+    + getContas(): List<Conta>
+    + getNome(): String
+    + getEmail(): String
+    + getTipo(): TipoCliente
+    + setNome(nome: String): void
+    + setEmail(email: String): void
+}
+
+abstract class Conta {
+    # numero: String
+    # saldo: double
+    # tipo: TipoConta
+    # proprietario: Cliente
+    --
+    + Conta(numero: String, saldo: double, tipo: TipoConta, proprietario: Cliente)
+    + {abstract} calcularRendimento(dias: int): double
+    + {abstract} calcularTaxaServico(rendimento: double): double
+    + getNumero(): String
+    + getSaldo(): double
+    + getTipo(): TipoConta
+    + getProprietario(): Cliente
+    + setSaldo(saldo: double): void
+}
+
+abstract class ProdutoInvestimento {
+    # nome: String
+    # descricao: String
+    # rendimentoMensal: double
+    # tipo: TipoProduto
+    --
+    + ProdutoInvestimento(nome: String, descricao: String, rendimentoMensal: double, tipo: TipoProduto)
+    + {abstract} calcularRendimento(valor: double, dias: int): double
+    + getNome(): String
+    + getDescricao(): String
+    + getRendimentoMensal(): double
+    + getTipo(): TipoProduto
+    + setNome(nome: String): void
+    + setDescricao(descricao: String): void
+    + setRendimentoMensal(rendimentoMensal: double): void
+}
+
+' Classes Concretas - Clientes
+class PessoaFisica {
+    - cpf: String
+    --
+    + PessoaFisica(nome: String, email: String, cpf: String)
+    + getDocumento(): String
+    + getCpf(): String
+    + setCpf(cpf: String): void
+}
+
+class PessoaJuridica {
+    - cnpj: String
+    --
+    + PessoaJuridica(nome: String, email: String, cnpj: String)
+    + getDocumento(): String
+    + getCnpj(): String
+    + setCnpj(cnpj: String): void
+}
+
+' Classes Concretas - Contas
+class ContaCorrente {
+    --
+    + ContaCorrente(numero: String, saldo: double, proprietario: Cliente)
+    + calcularRendimento(dias: int): double
+    + calcularTaxaServico(rendimento: double): double
+}
+
+class ContaCDI {
+    - TAXA_CDI_DIARIA: double
+    - TAXA_SERVICO: double
+    --
+    + ContaCDI(numero: String, saldo: double, proprietario: Cliente)
+    + calcularRendimento(dias: int): double
+    + calcularTaxaServico(rendimento: double): double
+}
+
+class ContaInvestimentoAutomatico {
+    - TAXA_SERVICO_PF: double
+    - TAXA_SERVICO_PJ: double
+    --
+    + ContaInvestimentoAutomatico(numero: String, saldo: double, proprietario: Cliente)
+    + calcularRendimento(dias: int): double
+    + calcularTaxaServico(rendimento: double): double
+}
+
+' Classes Concretas - Produtos
+class ProdutoRendaFixa {
+    - periodoCarencia: int
+    --
+    + ProdutoRendaFixa(nome: String, descricao: String, rendimentoMensal: double, periodoCarencia: int)
+    + calcularRendimento(valor: double, dias: int): double
+    + getPeriodoCarencia(): int
+    + setPeriodoCarencia(periodoCarencia: int): void
+}
+
+class ProdutoRendaVariavel {
+    --
+    + ProdutoRendaVariavel(nome: String, descricao: String, rendimentoMensal: double)
+    + calcularRendimento(valor: double, dias: int): double
+}
+
+' Sistema Principal
+class SistemaVcRiquinho {
+    - clientes: List<Cliente>
+    - produtos: List<ProdutoInvestimento>
+    --
+    + SistemaVcRiquinho()
+    + adicionarCliente(cliente: Cliente): void
+    + buscarCliente(documento: String): Cliente
+    + atualizarCliente(documento: String, novoNome: String, novoEmail: String): void
+    + removerCliente(documento: String): void
+    + listarClientes(): void
+    + adicionarProduto(produto: ProdutoInvestimento): void
+    + buscarProduto(nome: String): ProdutoInvestimento
+    + atualizarProduto(nome: String, novaDescricao: String, novoRendimento: double): void
+    + removerProduto(nome: String): void
+    + listarProdutos(): void
+    + simularRendimento(documentoCliente: String, dias: int): void
+}
+
+' Relacionamentos - Herança
+Cliente <|-- PessoaFisica
+Cliente <|-- PessoaJuridica
+
+Conta <|-- ContaCorrente
+Conta <|-- ContaCDI
+Conta <|-- ContaInvestimentoAutomatico
+
+ProdutoInvestimento <|-- ProdutoRendaFixa
+ProdutoInvestimento <|-- ProdutoRendaVariavel
+
+' Relacionamentos - Associação
+Cliente ||--o{ Conta : possui
+SistemaVcRiquinho ||--o{ Cliente : gerencia
+SistemaVcRiquinho ||--o{ ProdutoInvestimento : gerencia
+
+' Relacionamentos - Dependência
+Conta ..> Cliente : proprietario
+PessoaFisica ..> TipoCliente : tipo
+PessoaJuridica ..> TipoCliente : tipo
+ContaCorrente ..> TipoConta : tipo
+ContaCDI ..> TipoConta : tipo
+ContaInvestimentoAutomatico ..> TipoConta : tipo
+ProdutoRendaFixa ..> TipoProduto : tipo
+ProdutoRendaVariavel ..> TipoProduto : tipo
+
+' Notas explicativas
+note top of Cliente : "Classe abstrata base para\nPessoa Física e Jurídica"
+note top of Conta : "Classe abstrata base para\ndiferentes tipos de conta"
+note top of ProdutoInvestimento : "Classe abstrata base para\nprodutos de investimento"
+note top of SistemaVcRiquinho : "Sistema principal que gerencia\nclientes e produtos"
+
+@enduml
